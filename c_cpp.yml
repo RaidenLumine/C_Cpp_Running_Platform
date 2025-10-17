@@ -1,0 +1,28 @@
+name: Build Windows EXE
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-msvc:
+    name: Build on Windows (MSVC)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MSVC env
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build each .cpp -> .exe
+        shell: cmd
+        run: |
+          for %@f in (*.cpp) do {
+            echo Compiling %@for
+            cl /nologo /EHsc /02 /std:c++17 "%@f" /Fe:"%~nf.exe"
+          }
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: exes-msvc
+          path: .\*.exe
+          retention-days: 7
